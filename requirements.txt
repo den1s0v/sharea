@@ -1,0 +1,16 @@
+fs
+fs.googledrivefs
+
+drive
+
+pydrive
+
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+pyminizip
+
+# progress
+
+adict
