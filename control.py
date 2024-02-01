@@ -165,13 +165,20 @@ class SharedFolderManager:
 
 
 def main():
+    # cnf = SharedFolderConfig(
+    #     name='coursz',
+    #     local_path=r'c:\Temp\11\cou-siz',
+    # )
+    # man = SharedFolderManager(cnf)
+    # man.dump()
+
     cnf = SharedFolderConfig(
         name='coursz',
-        local_path=r'c:\Temp\11\cou-siz',
+        local_path=r'c:\Temp\11\cou-siz_2',
     )
 
     man = SharedFolderManager(cnf)
-    man.dump()
+    man.pull()
 
 
 if __name__ == '__main__':
