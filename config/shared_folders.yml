@@ -1,0 +1,26 @@
+# default params for each shared folder below
+defaults:
+  # cloud path
+  remote_root_path: 'Study/dev/shared/'
+  # local intermediate path
+  staging_root_path: 'c:/Temp/staging'
+  temp_root_path: 'c:/Temp/stagetmp'
+
+  # cloud sub-path
+  remote_sub_path: ''
+  # local intermediate sub-path
+  staging_sub_path: ''
+
+  # archives are encrypted by default
+  salt: secret
+
+
+
+shared_folders:
+  moodle-plugins-lk:
+    local_path: 'c:/D/Work/YDev/EOS/moodle-plugins-lk2'
+    type: archive
+    remote_sub_path:  'eos/moodle-plugins'
+        # full remote path: Study/dev/shared/eos/moodle-plugins/moodle-plugins-lk
+    staging_sub_path: 'eos/moodle-plugins'
+        # full staging path: c:/Temp/staging/eos/moodle-plugins/moodle-plugins-lk

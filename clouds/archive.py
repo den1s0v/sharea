@@ -78,9 +78,10 @@ def uncompress(zip_path: str, target_dir: str | Path = None, password=None,
     Create/clean a folder and extract there all files from zip with optional password for decryption.
     :param zip_path: a zip file to extract
     :param target_dir: path to save files to
-    :param password: an utf-8 string with password
+    :param password: None or an utf-8 string with password
     :param keep_relative_paths: pass False to extract all files to the same dir (ignoring source tree structure)
-    :param clear_target_contents: if True, remove everything from target_dir before extracting
+    :param clear_target_contents: if True (the default), remove everything from target_dir before extracting;
+            pass False if unpacking to the same directory.
     :return: None
     """
     if target_dir:

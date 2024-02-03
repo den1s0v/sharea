@@ -10,12 +10,8 @@ import fs.mirror
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-# from googleapiclient.discovery import build
-# from googleapiclient.errors import HttpError
-
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]  # all rights on my drive
-
 
 
 def google_drive_credentials():
@@ -55,6 +51,7 @@ class TempFileRemover:
     1) delete all files from previous session (stored in a file) on create
     2) gather paths of files to remove via cals to add() method for removal in next session.
     """
+
     def __init__(self):
         self.store_file = Path('./files_to_remove.txt')
         self.files = set()
@@ -94,6 +91,7 @@ class TempFileRemover:
 
 tempFileRemover = TempFileRemover()
 
+
 @contextmanager
 def handling_permission_error():
     try:
@@ -106,6 +104,7 @@ def decorate_for_permission_error(func):
     def proxy(*args, **kw):
         with handling_permission_error():
             return func.__call__(*args, **kw)
+
     return proxy
 
 
@@ -136,7 +135,6 @@ def make_google_drive_fs(drive_path=None):
         drive_fs = drive_fs.opendir(drive_path)
 
     return drive_fs
-
 
 
 def main():
@@ -179,12 +177,9 @@ def main():
         #         with local_fs.openbin(filepath) as f:
         #             drive_fs.upload(filepath, f)
 
-
         # local_fs_dst = open_fs(r'c:\Temp\11\ttls')
         # print('mirroring Drive dir to local...')
         # fs.mirror.mirror(drive_fs, local_fs_dst, preserve_time=True)
-
-
 
 
 if __name__ == '__main__':
