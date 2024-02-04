@@ -18,9 +18,33 @@ defaults:
 
 shared_folders:
   moodle-plugins-lk:
-    local_path: 'c:/D/Work/YDev/EOS/moodle-plugins-lk2'
+    local_path: 'c:/D/Work/YDev/EOS/moodle-plugins-lk'
     type: archive
     remote_sub_path:  'eos/moodle-plugins'
         # full remote path: Study/dev/shared/eos/moodle-plugins/moodle-plugins-lk
     staging_sub_path: 'eos/moodle-plugins'
         # full staging path: c:/Temp/staging/eos/moodle-plugins/moodle-plugins-lk
+
+  eos-txt:
+    local_path: 'c:/D/Нинь/учёба/13s'
+    type: archive
+    remote_sub_path:  'eos'
+    staging_sub_path: 'eos'
+    # :: files filtering ::
+    filter: ['eos.txt']
+    # exclude: ['~*', '.*']
+    # filter_dirs: ['*']
+    # exclude_dirs: ['*.svn', '*.git']
+    exclude_dirs: ['*']
+    max_depth: 0
+
+
+  oaod-txt:
+    local_path: 'c:/D/Нинь/учёба/oaod'
+    type: archive
+    remote_sub_path:  'eos'
+    staging_sub_path: 'eos'
+    filter: ['oaod*.txt']
+    exclude_dirs: ['*']
+    max_depth: 0
+

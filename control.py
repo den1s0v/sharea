@@ -33,6 +33,7 @@ from fs.base import FS
 from fs.copy import copy_file
 import fs.errors
 import fs.mirror
+from fs.walk import Walker
 import yaml
 
 from clouds.archive import compress_fs, uncompress, compress_files
@@ -88,11 +89,11 @@ class DataClass(adict):
         super().__init__(params)
 
 
-def mirror_fs_contents(src_fs: FS, dst_fs: FS, target_dir: str = None):
+def mirror_fs_contents(src_fs: FS, dst_fs: FS, _target_dir: str = None):
     """target_dir: relative to root of dst_fs (optional)."""
-    if target_dir:
-        dst_fs.makedirs(target_dir, recreate=True)
-        dst_fs = dst_fs.opendir(target_dir)
+    if _target_dir:
+        dst_fs.makedirs(_target_dir, recreate=True)
+        dst_fs = dst_fs.opendir(_target_dir)
     # if clear_target_contents:
     #     src_fs.removetree('/')  # this keeps directory itself
     print(end=' mirroring fs contents...')
@@ -118,6 +119,9 @@ class SharedFolderConfig(DataClass):
         remote_kind='google-drive',
     )
 
+    # @see https://docs.pyfilesystem.org/en/latest/reference/walk.html
+    _walk_filter_keys = 'filter exclude filter_dirs exclude_dirs max_depth'.split()
+
     def __init__(self, data: adict = None, **kw):
         super().__init__(data, **kw)
         assert self.name  # must be unique!
@@ -137,6 +141,11 @@ class SharedFolderConfig(DataClass):
                 self.staging_root_path,
                 self.staging_sub_path,
                 self.name)
+
+        self.filters = adict()  # kwargs to pass to `fs.walk.files(...)`
+        for key in self._walk_filter_keys:
+            if key in self and self[key]:  # use non-empty args only
+                self.filters[key] = self[key]
 
     def password_for_archive(self):
         return self.salt + '~' + self.name[0].lower()
@@ -177,6 +186,19 @@ class SharedFolderManager:
         self.staging = LocalFolder(config.staging_path)
         self.remote = GoogleDriveFolder(config.remote_path)
 
+    def mirror_fs_with_filter(self, src_fs: FS, dst_fs: FS, keep_dst_contents=True):
+        if not self.config.filters:
+            mirror_fs_contents(src_fs, dst_fs)
+        else:
+            # filters are set, do not touch anything else...
+            walker = Walker(**self.config.filters)
+            print(end=f' {"copy" if keep_dst_contents else "mirror"}ing fs contents (with filter)...')
+            if keep_dst_contents:
+                fs.copy.copy_fs_if(src_fs, dst_fs, 'newer', preserve_time=True, walker=walker)
+            else:
+                fs.mirror.mirror(src_fs, dst_fs, preserve_time=True, walker=walker)
+            print(' done.')
+
     def fetch(self):
         with duration_report('fetch!'):
             mirror_fs_contents(self.remote.fs, self.staging.fs)
@@ -184,7 +206,7 @@ class SharedFolderManager:
     def rewrite(self):
         with duration_report('rewrite!'):
             # are you sure...?
-            mirror_fs_contents(self.staging.fs, self.local.fs)
+            self.mirror_fs_with_filter(self.staging.fs, self.local.fs)
 
     def pull(self):
         # are you sure...?
@@ -193,7 +215,7 @@ class SharedFolderManager:
 
     def stage(self):
         with duration_report('stage!'):
-            mirror_fs_contents(self.local.fs, self.staging.fs)
+            self.mirror_fs_with_filter(self.local.fs, self.staging.fs, keep_dst_contents=False)
 
     def push(self):
         with duration_report('push!'):
@@ -359,10 +381,11 @@ def main():
     # print(get_shared_folders_managers())
 
     mgrs = get_shared_folders_managers()
-    mgrs[0].stage()
-    mgrs[0].push()
     # mgrs[0].pull()  # !!
     ...
+    for mgr in mgrs:
+        mgr.fetch()
+        # mgr.dump()
 
 
 if __name__ == '__main__':
