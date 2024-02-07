@@ -11,7 +11,11 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+
 SCOPES = ["https://www.googleapis.com/auth/drive"]  # all rights on my drive
+
+# ../config/
+CONFIG_DIR = Path(__file__).parent.parent.joinpath("config")
 
 
 def google_drive_credentials():
@@ -20,8 +24,8 @@ def google_drive_credentials():
 
       @see https://developers.google.com/drive/api/quickstart/python
     """
-    token_json_path = str(Path(__file__).parent.joinpath("token.json"))
-    credentials_json_path = str(Path(__file__).parent.joinpath("credentials.json"))
+    token_json_path = str(CONFIG_DIR.joinpath("token.json"))
+    credentials_json_path = str(CONFIG_DIR.joinpath("credentials.json"))
 
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
