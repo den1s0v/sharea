@@ -394,7 +394,7 @@ def main():
     mgrs = get_shared_folders_managers()
 
     with duration_report('all tasks'):
-    for mgr in mgrs:
+      for mgr in mgrs:
         mgr.fetch()
         # mgr.dump()
 
