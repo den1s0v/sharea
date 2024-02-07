@@ -43,4 +43,4 @@ def duration_report(label: str = '', report_on_start = True):
     finally:
         delta = timer() - start_time
         print(f'Finished {label} in', "%.4f" % delta, 's')
-
+        print()

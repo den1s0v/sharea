@@ -199,12 +199,15 @@ class SharedFolderManager:
                 fs.mirror.mirror(src_fs, dst_fs, preserve_time=True, walker=walker)
             print(' done.')
 
+    def phase_name(self, name: str):
+        return "{}! ({})".format(name, self.config.name)
+
     def fetch(self):
-        with duration_report('fetch!'):
+        with duration_report(self.phase_name('fetch')):
             mirror_fs_contents(self.remote.fs, self.staging.fs)
 
     def rewrite(self):
-        with duration_report('rewrite!'):
+        with duration_report(self.phase_name('rewrite')):
             # are you sure...?
             self.mirror_fs_with_filter(self.staging.fs, self.local.fs)
 
@@ -214,11 +217,11 @@ class SharedFolderManager:
         self.rewrite()
 
     def stage(self):
-        with duration_report('stage!'):
+        with duration_report(self.phase_name('stage')):
             self.mirror_fs_with_filter(self.local.fs, self.staging.fs, keep_dst_contents=False)
 
     def push(self):
-        with duration_report('push!'):
+        with duration_report(self.phase_name('push')):
             mirror_fs_contents(self.staging.fs, self.remote.fs)
 
     def dump(self):
@@ -236,6 +239,7 @@ class ArchivingSharedFolderManager(SharedFolderManager):
 
     def compress_with_hash(self):
         """As part of push!: archive staging --> temp"""
+        print(end=' compressing folder... ')
         src_fs, dst_fs = self.staging.fs, self.temp.fs
         hash_alg_name = 'md5'  # hardcoded so far
 
@@ -254,6 +258,7 @@ class ArchivingSharedFolderManager(SharedFolderManager):
 
         if dst_fs.exists(new_filename):
             # archive with the same hash is already present, do not overwrite it.
+            print('this version is already archived.')
             return new_filename
 
         # clear old versions first
@@ -268,6 +273,7 @@ class ArchivingSharedFolderManager(SharedFolderManager):
                        password=self.config.password_for_archive(),
                        compression_level=1)
 
+        print('done.')
         return new_filename
 
     def hashed_file_pattern(self):
@@ -275,6 +281,7 @@ class ArchivingSharedFolderManager(SharedFolderManager):
 
     def uncompress_hashed_file(self, filepath=None):
         """As part of fetch!: extract temp --> staging"""
+        print(end=' extracting folder... ')
         src_fs, dst_fs = self.temp.fs, self.staging.fs
         # clear dir (done by uncompress() internally)
         # dst_fs.removetree('/')
@@ -293,6 +300,8 @@ class ArchivingSharedFolderManager(SharedFolderManager):
 
         assert src_fs.exists(self.archive_filename)
 
+        print(end=' bundle opened... ')
+
         # 2. extract plain archive containing user files
         uncompress(
             src_fs.getsyspath(self.archive_filename),
@@ -302,6 +311,7 @@ class ArchivingSharedFolderManager(SharedFolderManager):
 
         # # clear temp dir ?? No, keep cached download.
         # src_fs.removetree('/'))
+        print(' content is replaced. ')
 
     def find_hashed_file(self, src_fs: FS):
         # assume that exactly one file present
@@ -332,12 +342,12 @@ class ArchivingSharedFolderManager(SharedFolderManager):
         return filepath
 
     def fetch(self):
-        with duration_report('fetch!'):
+        with duration_report(self.phase_name('fetch')):
             filepath = self.mirror_hashed_file(self.remote.fs, self.temp.fs)
             self.uncompress_hashed_file(filepath)
 
     def push(self):
-        with duration_report('push!'):
+        with duration_report(self.phase_name('push')):
             target_filename = self.compress_with_hash()
             self.mirror_hashed_file(self.temp.fs, self.remote.fs, target_filename)
 
@@ -382,8 +392,8 @@ def main():
     # print(get_shared_folders_managers())
 
     mgrs = get_shared_folders_managers()
-    # mgrs[0].pull()  # !!
-    ...
+
+    with duration_report('all tasks'):
     for mgr in mgrs:
         mgr.fetch()
         # mgr.dump()
