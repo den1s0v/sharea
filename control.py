@@ -36,8 +36,8 @@ import fs.mirror
 from fs.walk import Walker
 import yaml
 
-from clouds.archive import compress_fs, uncompress, compress_files
 from clouds.gdrive import make_google_drive_fs
+from util.enc_zip import compress_fs, uncompress, compress_files
 from helpers import duration_report
 
 
@@ -289,7 +289,6 @@ class ArchivingSharedFolderManager(SharedFolderManager):
             archive_syspath,
             src_fs.getsyspath('/'),
             self.config.password_for_archive(),
-            clear_target_contents=False  # required when unpacking to the same dir
         )
 
         assert src_fs.exists(self.archive_filename)
@@ -297,7 +296,9 @@ class ArchivingSharedFolderManager(SharedFolderManager):
         # 2. extract plain archive containing user files
         uncompress(
             src_fs.getsyspath(self.archive_filename),
-            dst_fs.getsyspath('/'))
+            dst_fs.getsyspath('/'),
+            clear_target_contents=True
+        )
 
         # # clear temp dir ?? No, keep cached download.
         # src_fs.removetree('/'))
