@@ -317,7 +317,7 @@ class ArchivingSharedFolderManager(SharedFolderManager):
         # assume that exactly one file present
         file_pattern = self.hashed_file_pattern()
         files = list(src_fs.walk.files(filter=[file_pattern]))
-        assert files
+        assert files, files
         assert len(files) == 1, ('Only one file expected, found:', files)
         return files[0]
 
@@ -394,9 +394,10 @@ def main():
     mgrs = get_shared_folders_managers()
 
     with duration_report('all tasks'):
-      for mgr in mgrs:
-        mgr.fetch()
-        # mgr.dump()
+        for mgr in mgrs:
+            mgr.fetch()
+            # mgr.stage()
+            # mgr.dump()
 
 
 if __name__ == '__main__':
