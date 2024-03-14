@@ -372,25 +372,6 @@ def get_shared_folders_managers(config_file: str = './config/shared_folders.yml'
 
 
 def main():
-    # cnf = SharedFolderConfig(
-    #     name='coursz',
-    #     local_path=r'c:\Temp\11\cou-siz',
-    # )
-    # man = SharedFolderManager(cnf)
-    # man.dump()
-
-    # cnf = SharedFolderConfig(
-    #     name='coursz',
-    #     local_path=r'c:\Temp\11\cou-siz_2',
-    # )
-    #
-    # man = SharedFolderManager(cnf)
-    # # man.pull()
-    # man.fetch()
-
-    # print(load_shared_folders_configuration())
-    # print(get_shared_folders_managers())
-
     mgrs = get_shared_folders_managers()
 
     with duration_report('all tasks'):

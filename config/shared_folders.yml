@@ -17,29 +17,49 @@ defaults:
 
 
 shared_folders:
-  moodle-plugins-lk:
-    local_path: 'c:/D/Work/YDev/EOS/moodle-plugins-lk'
-    type: archive
-    remote_sub_path:  'eos/moodle-plugins'
-        # full remote path: Study/dev/shared/eos/moodle-plugins/moodle-plugins-lk
-    staging_sub_path: 'eos/moodle-plugins'
-        # full staging path: c:/Temp/staging/eos/moodle-plugins/moodle-plugins-lk
 
-  eos-txt:
-    local_path: 'c:/D/Нинь/учёба/13s'
+  # hot:
+  #   local_path: 'c:/Temp/hot'
+
+  hot-a:
+    local_path: 'c:/Temp/hot-a'
     type: archive
-    remote_sub_path:  'eos'
-    staging_sub_path: 'eos'
-    # :: files filtering ::
-    filter: ['eos.txt']
-    # exclude: ['~*', '.*']
-    # filter_dirs: ['*']
-    # exclude_dirs: ['*.svn', '*.git']
+
+
+  # moodle-plugins-lk:
+  #   local_path: 'c:/D/Work/YDev/EOS/moodle-plugins-lk'
+  #   type: archive
+  #   remote_sub_path:  'eos/moodle-plugins'
+  #       # full remote path: Study/dev/shared/eos/moodle-plugins/moodle-plugins-lk
+  #   staging_sub_path: 'moodle-plugins'
+  #       # full staging path: c:/Temp/staging/eos/moodle-plugins/moodle-plugins-lk
+
+
+  учёба:
+    local_path: 'c:/D/Нинь/учёба'
+    type: archive
+    remote_sub_path:  ''
+    staging_sub_path: ''
+    filter: ['*.txt']
     exclude_dirs: ['*']
     max_depth: 0
 
 
-  oaod-txt:
+  # 13s:
+  #   local_path: 'c:/D/Нинь/учёба/13s'
+  #   type: archive
+  #   remote_sub_path:  'eos'
+  #   staging_sub_path: 'eos'
+  #   # :: files filtering ::
+  #   filter: ['eos.txt']
+  #   # exclude: ['~*', '.*']
+  #   # filter_dirs: ['*']
+  #   # exclude_dirs: ['*.svn', '*.git']
+  #   exclude_dirs: ['*']
+  #   max_depth: 0
+
+
+  oaod:
     local_path: 'c:/D/Нинь/учёба/oaod'
     type: archive
     remote_sub_path:  'eos'
@@ -47,4 +67,14 @@ shared_folders:
     filter: ['oaod*.txt']
     exclude_dirs: ['*']
     max_depth: 0
+
+
+  # oaod-dirs:
+  #   local_path: 'c:/D/Нинь/учёба/oaod'
+  #   # type: archive
+  #   remote_sub_path:  'eos'
+  #   staging_sub_path: 'eos'
+  #   exclude: ['oaod*.txt']
+  #   # exclude_dirs: ['*']
+  #   # max_depth: 0
 
