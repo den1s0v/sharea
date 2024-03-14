@@ -7,10 +7,11 @@ High-level operations (using some terms of version control systems, e.g. Git):
 
  - fetch (from remote to staging area)
  - rewrite (from staging area to local area, Dangerous! May cause data loss!)
-    - pull = fetch + rewrite
+ - pull = fetch + rewrite
+---
  - stage (from local area to staging area)
  - push (from staging area to remote)
-     - dump = stage + push
+ - dump = stage + push
 
 Normal everyday workflow:
  0) come to office
@@ -81,27 +82,7 @@ class GoogleDriveFolder(RemoteFolder):
         return make_google_drive_fs(self.drive_path)
 
 
-class DataClass(adict):
-    def __init__(self, data: dict = None, **kw):
-        params = adict(self._init_defaults)
-        params.update(data or {})
-        params.update(kw)
-        super().__init__(params)
-
-
-def mirror_fs_contents(src_fs: FS, dst_fs: FS, _target_dir: str = None):
-    """target_dir: relative to root of dst_fs (optional)."""
-    if _target_dir:
-        dst_fs.makedirs(_target_dir, recreate=True)
-        dst_fs = dst_fs.opendir(_target_dir)
-    # if clear_target_contents:
-    #     src_fs.removetree('/')  # this keeps directory itself
-    print(end=' mirroring fs contents...')
-    fs.mirror.mirror(src_fs, dst_fs, preserve_time=True)
-    print(' done.')
-
-
-class SharedFolderConfig(DataClass):
+class SharedFolderConfig(adict):
     # mandatory:
     name: str
     local_path: str
@@ -123,7 +104,13 @@ class SharedFolderConfig(DataClass):
     _walk_filter_keys = 'filter exclude filter_dirs exclude_dirs max_depth'.split()
 
     def __init__(self, data: adict = None, **kw):
-        super().__init__(data, **kw)
+        # bring all params together and init underlying dict
+        params = adict(self._init_defaults)
+        params.update(data or {})
+        params.update(kw)
+        super().__init__(params)
+
+        # check & prepare config
         assert self.name  # must be unique!
         assert self.local_path  # should point to any existing location on local drive
         assert self.type
@@ -188,7 +175,10 @@ class SharedFolderManager:
 
     def mirror_fs_with_filter(self, src_fs: FS, dst_fs: FS, keep_dst_contents=True):
         if not self.config.filters:
-            mirror_fs_contents(src_fs, dst_fs)
+            # mirror_fs_contents(src_fs, dst_fs)
+            print(end=' mirroring fs contents...')
+            fs.mirror.mirror(src_fs, dst_fs, preserve_time=True)
+
         else:
             # filters are set, do not touch anything else...
             walker = Walker(**self.config.filters)
@@ -197,14 +187,14 @@ class SharedFolderManager:
                 fs.copy.copy_fs_if(src_fs, dst_fs, 'newer', preserve_time=True, walker=walker)
             else:
                 fs.mirror.mirror(src_fs, dst_fs, preserve_time=True, walker=walker)
-            print(' done.')
+        print(' done.')
 
     def phase_name(self, name: str):
         return "{}! ({})".format(name, self.config.name)
 
     def fetch(self):
         with duration_report(self.phase_name('fetch')):
-            mirror_fs_contents(self.remote.fs, self.staging.fs)
+            self.mirror_fs_with_filter(self.remote.fs, self.staging.fs, keep_dst_contents=False)
 
     def rewrite(self):
         with duration_report(self.phase_name('rewrite')):
@@ -222,7 +212,7 @@ class SharedFolderManager:
 
     def push(self):
         with duration_report(self.phase_name('push')):
-            mirror_fs_contents(self.staging.fs, self.remote.fs)
+            self.mirror_fs_with_filter(self.staging.fs, self.remote.fs, keep_dst_contents=False)
 
     def dump(self):
         self.stage()
@@ -377,8 +367,15 @@ def main():
     with duration_report('all tasks'):
         for mgr in mgrs:
             mgr.fetch()
-            # mgr.stage()
+            # mgr.push()
             # mgr.dump()
+            # mgr.stage()
+            if mgr.config.name == 'hot-a':
+                # mgr.push()
+                # mgr.stage()
+                # mgr.rewrite()  # !!
+                pass
+            pass
 
 
 if __name__ == '__main__':
